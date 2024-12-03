@@ -2,7 +2,7 @@
 
 require_relative "./shared"
 
-INPUT = load_input(__FILE__).chomp
+INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 
 def diff(a, b)
   (a - b).abs
@@ -25,10 +25,23 @@ def part_one(input)
 end
 
 def part_two(input)
+  list_1 = []
+  list_2 = []
+
+  input.split("\n").each do |pair|
+    first_list_element, second_list_element = pair.split
+
+    list_1 << first_list_element.to_i
+    list_2 << second_list_element.to_i
+  end
+  
+  multipliers = list_2.tally
+
+  list_1.sum { _1 * multipliers.fetch(_1, 0) }
 end
 
 puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
-# puts "Solution for part two: #{part_two(INPUT).inspect}" unless ENV["PART"] == "1"
+puts "Solution for part two: #{part_two(INPUT).inspect}" unless ENV["PART"] == "1"
 
 RSpec.describe "the solution" do
   describe "#part_one" do
@@ -41,5 +54,9 @@ RSpec.describe "the solution" do
 
   describe "#part_two" do
     subject { part_two input }
+
+    let(:input) { "2   5\n2   2\n3   6\n3   2"}
+
+    it { is_expected.to eq 8 }
   end
 end
