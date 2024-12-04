@@ -36,6 +36,14 @@ RSpec.describe "the solution" do
     subject {  part_one(input)}
     
     it {is_expected.to eq 161}
+
+    it "recognizes up to 3 digits" do
+      expect(part_one("mul(100,300)")).to eq 30000
+    end
+
+    it "" do
+      expect(part_one("mul(100,300)")).to eq 30000
+    end
   end
 
   describe "#part_two" do
