@@ -12,7 +12,23 @@ def ordered?(list:, reverse:)
   reverse ? list.sort.reverse == list : list.sort == list
 end
 
+def check_report(report)
+    safe = 1
+
+    safe = 0 unless (ordered?(list: report, reverse: true) || ordered?(list: report, reverse: false))
+
+    report.each_cons(2){ |a, b| safe = 0 unless within_diff?(a,b) }
+
+    safe
+end
+
 def part_one(input)
+  input.split("\n").sum { | report |
+    check_report(report.split.map!{_1.to_i})
+  } 
+end
+
+def part_two(input)
   input.split("\n").sum { | report |
     report = report.split.map!{_1.to_i}
 
@@ -24,9 +40,6 @@ def part_one(input)
 
     safe
   } 
-end
-
-def part_two(input)
 end
 
 puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
