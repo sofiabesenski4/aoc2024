@@ -8,7 +8,7 @@ INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 def part_one(input)
   sum = 0
 
-  input = input.gsub("\n","")
+  input = input.gsub("\n"," ")
 
   while
     match = input.match(/mul\((\d{1,3}),(\d{1,3})\)(.*)/)
@@ -27,6 +27,16 @@ def part_one(input)
 end
 
 def part_two(input)
+  enabled = true
+
+end
+
+def enable_command
+  /do\(\)/
+end
+
+def disable_command
+  /don't\(\)/
 end
 
 puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
@@ -69,6 +79,10 @@ RSpec.describe "the solution" do
   end
 
   describe "#part_two" do
+    let(:input) {"don't()mul(100,100)jfkldajflsakdo()xmul(2,4)%&don't()mul(100,100)do()mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"}
+    subject {  part_one(input)}
+    
+    it {is_expected.to eq 161}
   end
 end
    
