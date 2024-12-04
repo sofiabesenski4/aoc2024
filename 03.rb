@@ -8,6 +8,8 @@ INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 def part_one(input)
   sum = 0
 
+  input = input.gsub("\n","")
+
   while
     match = input.match(/mul\((\d{1,3}),(\d{1,3})\)(.*)/)
     
@@ -41,8 +43,28 @@ RSpec.describe "the solution" do
       expect(part_one("mul(100,300)")).to eq 30000
     end
 
-    it "" do
-      expect(part_one("mul(100,300)")).to eq 30000
+    it "handles newlines" do
+      expect(part_one("mul(1,3)\nmul(2,5)")).to eq 13
+    end
+
+    it "handles back to back muls" do
+      expect(part_one("mul(1,3)mul(2,5)")).to eq 13
+    end
+    
+    it "handles garbage in between muls" do
+      expect(part_one('%&*&%\mul(1,3)48skjmul(fjhlkdjmulmul(2,5)')).to eq 13
+    end
+    
+    it "recognizes parenthesis" do
+      expect(part_one("mul[1,3]mul(2,5)")).to eq 10
+    end
+
+    it "will not count more than 3 digits" do
+      expect(part_one("mul(100,3000)")).to eq 0 
+    end
+
+    it "will not include negative numbers" do
+      expect(part_one("mul(-1,3)")).to eq 0
     end
   end
 
