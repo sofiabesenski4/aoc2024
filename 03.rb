@@ -27,20 +27,29 @@ def part_one(input)
 end
 
 def part_two(input)
-  enabled = true
+  sum = 0
 
+  input = input.gsub("\n"," ")
+
+  while input && input != ""
+    stop_index = input.index("don't()")
+
+    sum += part_one(input[...stop_index])
+
+    input = input[stop_index + 7..]
+
+    if (start_index = input.index("do()"))
+      input = input[input.index("do()") + 4..]
+    else
+      break
+    end
+  end
+
+  sum
 end
 
-def enable_command
-  /do\(\)/
-end
-
-def disable_command
-  /don't\(\)/
-end
-
-puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
-# puts "Solution for part two: #{part_two(INPUT).inspect}" unless ENV["PART"] == "1"
+# puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
+puts "Solution for part two: #{part_two(INPUT).inspect}" unless ENV["PART"] == "1"
 
 RSpec.describe "the solution" do
   describe "#part_one" do
@@ -58,7 +67,7 @@ RSpec.describe "the solution" do
     end
 
     it "handles back to back muls" do
-      expect(part_one("mul(1,3)mul(2,5)")).to eq 13
+      expect(part_one("mul(1,3)mul(2,5s)")).to eq 13
     end
     
     it "handles garbage in between muls" do
@@ -80,7 +89,7 @@ RSpec.describe "the solution" do
 
   describe "#part_two" do
     let(:input) {"don't()mul(100,100)jfkldajflsakdo()xmul(2,4)%&don't()mul(100,100)do()mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"}
-    subject {  part_one(input)}
+    subject {  part_two(input)}
     
     it {is_expected.to eq 161}
   end
