@@ -36,7 +36,6 @@ class WordSearch
 
   private
 
-
   def move(coordinates, translation)
     coordinates.zip(translation).map(&:sum)
   end
@@ -57,10 +56,29 @@ def part_one(input)
 end
 
 def part_two(input)
+  target = "XMAS"
+  letters_grid = input.split("\n").map{|line| line.split("")}
+  
+  word_search = WordSearch.new(letters_grid)
+  starting_points = word_search.find_all_letter_coordinates("A")
+
+  starting_points.sum do |starting_point|
+    first_mas =  word_search.check_for_match(starting_point, "S", [1,1]) == 1 \
+      && word_search.check_for_match(starting_point, "M", [-1,-1]) == 1 ||
+      word_search.check_for_match(starting_point, "S", [-1,-1]) == 1 \
+      && word_search.check_for_match(starting_point, "M", [1,1]) == 1
+
+    second_mas = word_search.check_for_match(starting_point, "S", [1,-1]) == 1 \
+      && word_search.check_for_match(starting_point, "M", [-1,1]) == 1 ||
+      word_search.check_for_match(starting_point, "S", [-1,1]) == 1 \
+      && word_search.check_for_match(starting_point, "M", [1,-1]) == 1
+
+    first_mas && second_mas ? 1 : 0
+  end
 end
 
-puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
-# puts "Solution for part two: #{part_two(INPUT).inspect}" unless ENV["PART"] == "1"
+# puts "Solution for part one: #{part_one(INPUT).inspect}" unless ENV["PART"] == "2"
+puts "Solution for part two: #{part_two(INPUT).inspect}" unless ENV["PART"] == "1"
 
 RSpec.describe "the solution" do
   describe "#part_one" do
