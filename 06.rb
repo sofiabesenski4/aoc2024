@@ -15,13 +15,14 @@ class LabMap
   attr_reader :starting_point
 
   def initialize(two_d_array)
+    @two_d_array = two_d_array
     @grid = {}
     @starting_point = nil
 
-    two_d_array.each_with_index do | row, row_index| 
+    @two_d_array.each_with_index do | row, row_index| 
       # Reverse so it's indexed like the normal cartisian plane, starting in
       # the top left corner.
-      y_coordinate = two_d_array.length - 1 - row_index
+      y_coordinate = @two_d_array.length - 1 - row_index
 
       row.each_with_index do |element, column_index| 
         x_coordinate = column_index 
@@ -36,6 +37,9 @@ class LabMap
       end
     end 
   end
+  
+  def reset() @grid = {}; populate_points end
+
 
   def add_obstacle(point)
     @grid[point] = MapLocation.for_marker("#") unless point == @starting_point
@@ -53,6 +57,24 @@ class LabMap
     @grid.filter_map { |point, content| 
       point if content.visited 
     }
+  end
+
+  private
+
+  # TODO: Abstract out the array processing.
+  def populate_points
+    @two_d_array.each_with_index do | row, row_index| 
+      # Reverse so it's indexed like the normal cartisian plane, starting in
+      # the top left corner.
+      y_coordinate = @two_d_array.length - 1 - row_index
+
+      row.each_with_index do |element, column_index| 
+        x_coordinate = column_index 
+        point = Point.new(x_coordinate, y_coordinate)
+
+        @grid[point] = MapLocation.for_marker(element)
+      end
+    end 
   end
 end
 
@@ -173,7 +195,7 @@ def part_two(input)
   possible_cycle_count = 0
 
   obstacle_positions.each do |obstacle_position|
-    map = LabMap.new(input)
+    map.reset
     map.add_obstacle(obstacle_position)
     guard = Guard.new(map)
 
