@@ -5,22 +5,7 @@ require_relative "./shared"
 
 INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 
-class Point
-  attr_reader :x, :y
-  def initialize(x, y)
-    @x = x
-    @y = y
-  end
-
-  def hash
-    [x,y].hash
-  end
-
-  def eql?(point)
-    hash == point.hash
-  end
-  alias == :eql?
-
+Point = Struct.new(:x, :y) do
   def +(other)
     Point.new(x + other.x, y + other.y)
   end
