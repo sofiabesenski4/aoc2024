@@ -30,6 +30,14 @@ class LabMap
     end 
   end
 
+  def add_obstacle(coordinates)
+    @grid[coordinates] = MapLocation.for_marker("#") unless coordinates == @starting_point
+  end
+
+  def all_locations
+    @grid.keys
+  end
+
   def fetch(coordinates)
     @grid.fetch(coordinates, MapLocation.out_of_bounds)
   end
@@ -61,25 +69,31 @@ class MapLocation
 end
 
 class OutOfBounds
-  def visit
-    throw :out_of_bounds
+  def visit(**kwargs)
+    throw :end, :out_of_bounds
   end
 end
 
 class Obstacle
   attr_reader :visited
-  def visit
+  def visit(**kwargs)
     false
   end
 end
 
 class Space
+  CYCLE_LIMIT = 4
+
   attr_reader :visited
   def initialize(visited: false)
     @visited = visited
+    @treadmarks = Set.new 
   end
 
-  def visit
+  def visit(direction: nil)
+    throw(:end, :cycle_detected) if @treadmarks.include?(direction)
+    @treadmarks << direction if direction
+
     @visited = true
   end
 end
@@ -94,7 +108,7 @@ class Guard
   end
 
   def move
-    if @map.fetch(next_move).visit()
+    if @map.fetch(next_move).visit(direction: @direction)
       @location = next_move 
     else
       turn_right    
@@ -126,7 +140,7 @@ def part_one(input)
 
   guard = Guard.new(map)
 
-  catch(:out_of_bounds) do
+  catch(:end) do
     while
       guard.move
     end
@@ -136,6 +150,38 @@ def part_one(input)
 end
 
 def part_two(input)
+  input = input.split("\n").map{|line| line.split("")}
+  
+  map = LabMap.new(input)
+
+  guard = Guard.new(map)
+
+  catch(:end) do
+    while
+      guard.move
+    end
+  end
+
+  obstacle_positions = map.visited_locations
+  obstacle_positions.delete(map.starting_point)
+
+  possible_cycle_count = 0
+
+  obstacle_positions.each do |obstacle_position|
+    map = LabMap.new(input)
+    map.add_obstacle(obstacle_position)
+    guard = Guard.new(map)
+
+    end_condition = catch(:end) do
+      while
+        guard.move
+      end
+    end
+
+    possible_cycle_count +=1 if end_condition == :cycle_detected
+  end
+
+  possible_cycle_count
 end
 
 puts "Solution for part one: #{part_one(INPUT).inspect}" if ENV["PART"] == "1"
@@ -155,5 +201,9 @@ RSpec.describe "the solution" do
   end
 
   describe "#part_two" do
+    let(:input) { File.open('06sample.txt').read }
+    subject{ part_two(input) }
+    
+    it{is_expected.to eq(6)}
   end
 end
