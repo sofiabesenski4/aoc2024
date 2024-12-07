@@ -5,6 +5,27 @@ require_relative "./shared"
 
 INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 
+class Point
+  attr_reader :x, :y
+  def initialize(x, y)
+    @x = x
+    @y = y
+  end
+
+  def hash
+    [x,y].hash
+  end
+
+  def eql?(point)
+    hash == point.hash
+  end
+  alias == :eql?
+
+  def +(other)
+    Point.new(x + other.x, y + other.y)
+  end
+end
+
 class LabMap
   attr_reader :starting_point
 
@@ -19,32 +40,33 @@ class LabMap
 
       row.each_with_index do |element, column_index| 
         x_coordinate = column_index 
-        
-        point =  MapLocation.for_marker(element)
-        @grid[[x_coordinate,y_coordinate]] = point
+
+        point = Point.new(x_coordinate, y_coordinate)
+
+        @grid[point] = MapLocation.for_marker(element)
 
         if element == "^" 
-          @starting_point = [x_coordinate, y_coordinate]
+          @starting_point = point 
         end
       end
     end 
   end
 
-  def add_obstacle(coordinates)
-    @grid[coordinates] = MapLocation.for_marker("#") unless coordinates == @starting_point
+  def add_obstacle(point)
+    @grid[point] = MapLocation.for_marker("#") unless point == @starting_point
   end
 
   def all_locations
     @grid.keys
   end
 
-  def fetch(coordinates)
-    @grid.fetch(coordinates, MapLocation.out_of_bounds)
+  def fetch(point)
+    @grid.fetch(point, MapLocation.out_of_bounds)
   end
 
   def visited_locations
-    @grid.filter_map { |coordinates, point| 
-      coordinates if point.visited 
+    @grid.filter_map { |point, content| 
+      point if content.visited 
     }
   end
 end
@@ -82,8 +104,6 @@ class Obstacle
 end
 
 class Space
-  CYCLE_LIMIT = 4
-
   attr_reader :visited
   def initialize(visited: false)
     @visited = visited
@@ -99,7 +119,7 @@ class Space
 end
 
 class Guard
-  DIRECTIONS = {up: [0,1], right: [1,0], down: [0,-1], left: [-1,0]}
+  DIRECTIONS = {up: Point.new(0,1), right: Point.new(1,0), down: Point.new(0,-1), left: Point.new(-1,0)}
 
   def initialize(map)
     @direction = :up
@@ -116,7 +136,7 @@ class Guard
   end
   
   def next_move
-    @location.dup.zip(DIRECTIONS[@direction].dup).map(&:sum)
+    DIRECTIONS[@direction] + @location
   end
 
   def turn_right
