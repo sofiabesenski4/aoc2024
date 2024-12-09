@@ -5,76 +5,29 @@ require_relative "./shared"
 
 INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 
-Point = Struct.new(:x, :y) do
-  def +(other)
-    Point.new(x + other.x, y + other.y)
-  end
-end
-
 class LabMap
   attr_reader :starting_point
 
   def initialize(two_d_array)
     @two_d_array = two_d_array
-    @grid = {}
-    @starting_point = nil
-
-    @two_d_array.each_with_index do | row, row_index| 
-      # Reverse so it's indexed like the normal cartisian plane, starting in
-      # the top left corner.
-      y_coordinate = @two_d_array.length - 1 - row_index
-
-      row.each_with_index do |element, column_index| 
-        x_coordinate = column_index 
-
-        point = Point.new(x_coordinate, y_coordinate)
-
-        @grid[point] = MapLocation.for_marker(element)
-
-        if element == "^" 
-          @starting_point = point 
-        end
-      end
-    end 
+    @grid = Grid.new(two_d_array, MapLocation) 
+    @starting_point = @grid.select { |value| value.visited  }.first
   end
   
-  def reset() @grid = {}; populate_points end
-
+  def reset() @grid = Grid.new(@two_d_array, MapLocation) end
 
   def add_obstacle(point)
-    @grid[point] = MapLocation.for_marker("#") unless point == @starting_point
-  end
-
-  def all_locations
-    @grid.keys
+    @grid.set(point, "#")
   end
 
   def fetch(point)
-    @grid.fetch(point, MapLocation.out_of_bounds)
+    @grid.fetch(point)
   end
 
   def visited_locations
-    @grid.filter_map { |point, content| 
-      point if content.visited 
+    @grid.select { |space| 
+      space.visited 
     }
-  end
-
-  private
-
-  # TODO: Abstract out the array processing.
-  def populate_points
-    @two_d_array.each_with_index do | row, row_index| 
-      # Reverse so it's indexed like the normal cartisian plane, starting in
-      # the top left corner.
-      y_coordinate = @two_d_array.length - 1 - row_index
-
-      row.each_with_index do |element, column_index| 
-        x_coordinate = column_index 
-        point = Point.new(x_coordinate, y_coordinate)
-
-        @grid[point] = MapLocation.for_marker(element)
-      end
-    end 
   end
 end
 
