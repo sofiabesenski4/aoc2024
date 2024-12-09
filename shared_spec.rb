@@ -41,6 +41,16 @@ RSpec.describe Grid do
 
     end
   end
+
+  describe ".from_text" do
+    it "initializes a Grid out of raw text" do
+      raw_text = "...\n.#.\n.#."
+      
+      grid = described_class.from_text(raw_text, space_factory)
+
+      expect(grid).to respond_to(:fetch, :select, :set)
+    end
+  end
 end 
 
 RSpec.describe Point do

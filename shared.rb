@@ -8,6 +8,14 @@ def load_input(current_filename)
 end
 
 class Grid
+  class << self
+    def from_text(input, factory)
+      two_d_array = input.split("\n").map{|line| line.split("")}
+      
+      new(two_d_array, factory)
+    end
+  end
+
   def initialize(two_d_array, space_factory)
     @space_factory = space_factory
     @point_map = {}

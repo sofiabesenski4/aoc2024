@@ -8,13 +8,13 @@ INPUT = load_input(ENV["INPUT"] || __FILE__).chomp
 class LabMap
   attr_reader :starting_point
 
-  def initialize(two_d_array)
-    @two_d_array = two_d_array
-    @grid = Grid.new(two_d_array, MapLocation) 
+  def initialize(raw_text)
+    @raw_text = raw_text 
+    @grid = Grid.from_text(raw_text, MapLocation) 
     @starting_point = @grid.select { |value| value.visited  }.first
   end
   
-  def reset() @grid = Grid.new(@two_d_array, MapLocation) end
+  def reset() @grid = Grid.from_text(@raw_text, MapLocation) end
 
   def add_obstacle(point)
     @grid.set(point, "#")
@@ -114,8 +114,6 @@ class Guard
 end
 
 def part_one(input)
-  input = input.split("\n").map{|line| line.split("")}
-  
   map = LabMap.new(input)
 
   guard = Guard.new(map)
@@ -130,8 +128,6 @@ def part_one(input)
 end
 
 def part_two(input)
-  input = input.split("\n").map{|line| line.split("")}
-  
   map = LabMap.new(input)
 
   guard = Guard.new(map)
